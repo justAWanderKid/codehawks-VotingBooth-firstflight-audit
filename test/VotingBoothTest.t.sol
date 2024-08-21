@@ -15,7 +15,7 @@ contract VotingBoothTest is Test {
     // contracts required for test
     VotingBooth booth;
 
-    _CheatCodes cheatCodes = _CheatCodes(HEVM_ADDRESS);
+    // _CheatCodes cheatCodes = _CheatCodes(HEVM_ADDRESS);
 
     function setUp() public virtual {
         // deal this contract the proposal reward

@@ -1,38 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.23; // [LOW] @audit cannot deploy on arbitrum with 0.8.23 solidity version or above since 0.8.20 and later solidity version introduced PUSH0 opcode
+                         //              which arbitrum does not support.
 
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
-// @title VotingBooth
-// @author https://twitter.com/DevDacian
-//
-// This contract is a simplified version of a real contract which
-// was audited by Cyfrin in a private audit and contained the same bug.
-//
-// Your mission, should you choose to accept it, is to find that bug!
-//
-// This contract allows the creator to invite a select group of people
-// to vote on something and provides an eth reward to the `for` voters
-// if the proposal passes, otherwise refunds the reward to the creator.
-// The creator of the contract is considered "Trusted".
-//
-// This contract has been intentionally simplified to remove much of
-// the extra complexity in order to help you find the particular bug without
-// other distractions. Please read the comments carefully as they note
-// specific findings that are excluded as the implementation has been
-// purposefully kept simple to help you focus on finding the harder
-// to find and more interesting bug.
-//
-// This contract intentionally has no time-out period for the voting
-// to complete; lack of a time-out period resulting in voting never
-// completing is not a valid finding as this has been intentionally
-// omitted to simplify the codebase.
-//
+
 // This contract should only contain 1 intentional High finding, but
-// if you find others they were not intentional :-) This contract should
-// not be used in any live/production environment; it is purely an
-// educational bug-hunting exercise based on a real-world example.
-//
+// if you find others they were not intentional :-)
+
 contract VotingBooth {
     // smallest amount proposal creator can fund contract with
     uint256 private constant MIN_FUNDING = 1 ether;
@@ -75,12 +50,9 @@ contract VotingBooth {
     // whether voting has been completed
     bool private s_votingComplete;
 
-    // create the contract
     constructor(address[] memory allowList) payable {
-        // require minimum eth proposal reward
         require(msg.value >= MIN_FUNDING, "DP: Minimum 1 eth proposal reward required");
 
-        // cache list length
         uint256 allowListLength = allowList.length;
 
         // perform some sanity checks. NOTE: checks for duplicate inputs
@@ -182,6 +154,8 @@ contract VotingBooth {
         // if the proposal was defeated refund reward back to the creator
         // for the proposal to be successful it must have had more `For` votes
         // than `Against` votes
+    
+
         if (totalVotesAgainst >= totalVotesFor) {
             // proposal creator is trusted to create a proposal from an address
             // that can receive ETH. See comment before declaration of `s_creator`
@@ -189,6 +163,7 @@ contract VotingBooth {
         }
         // otherwise the proposal passed so distribute rewards to the `For` voters
         else {
+            // [HIGH] @audit incorrect `rewardPerVoter` calculation leads to not sending the correct amount of rewards to each `for` voter.
             uint256 rewardPerVoter = totalRewards / totalVotes;
 
             for (uint256 i; i < totalVotesFor; ++i) {
