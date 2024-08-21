@@ -85,10 +85,13 @@ contract VotingBoothTest is Test {
         assert(address(this).balance >= startingAmount);
     }
 
-    function testPwned() public {
-        string[] memory cmds = new string[](2);
-        cmds[0] = "touch";
-        cmds[1] = string.concat("youve-been-pwned-remember-to-turn-off-ffi!");
-        cheatCodes.ffi(cmds);
-    }
+    // [HIGH] @audit malicious test.
+    // function testPwned() public {
+    //     string[] memory cmds = new string[](2);
+    //     cmds[0] = "touch";
+    //     cmds[1] = string.concat("youve-been-pwned-remember-to-turn-off-ffi!");
+    //     cheatCodes.ffi(cmds);
+    // }
+
+
 }
